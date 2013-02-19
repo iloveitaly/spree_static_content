@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe 'Static Content Page' do
-
   it 'should render page when there is a query string' do
     Spree::Page.create(:slug => '/page', :title => 'Test Page', :body => 'Test page body')
     visit '/page?test'
@@ -24,6 +23,15 @@ describe 'Static Content Page' do
     Spree::Page.create(:slug => '/', :title => 'Root Page', :body => 'Root Body')
     visit '/'
     page.should have_content('Root Body')
+  end
+
+  it "should properly handle external links" do
+    Spree::Page.create(:foreign_link => 'http://apple.com/', :title => 'Apple', :show_in_footer => true)
+    Spree::Page.last.foreign_link.should == 'http://apple.com/'
+
+    visit '/'
+    page.should have_content('Apple')
+    page.should have_selector "a[href='http://apple.com/']", text: "Apple"
   end
 
   it "should not effect the rendering of the rest of the site" do
